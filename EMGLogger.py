@@ -20,8 +20,18 @@ print("Starting")
 def bitstring_to_bytes(s):
     return int(s, 2).to_bytes(len(s) // 8, byteorder = 'big')
 
+def bytes_to_bitstring(s):
+    integer = int.from_bytes(s, byteorder='big')
+    bits = '{0:08b}'.format(integer)
+    return bits
+
+def bytes_to_integer(s):
+    integer = int.from_bytes(s, byteorder='big')
+    return integer
+
 TCP_IP = '0.0.0.0'
 TCP_PORT = 45454
+buffer_size = 240
 
 # Command string can be built from microsoft word documentation
 bTestCommand = b"0100000101000001"
@@ -52,18 +62,21 @@ print(TestCommand + " sent")
 
 for i in range(1000):
     print(i)
-    data = conn.recv(24) #Originally buffer size of 1024 for some reason
+    rawDataStream = conn.recv(buffer_size) #Originally buffer size of 1024 for some reason
     #Should be integer multiple of bytes per sample
-    print(type(data))
-    print(len(data))
+
+    print(rawDataStream)
+
+    data = np.zeros((12, int(buffer_size/24))) #8 + 4 channels
+
+    for timeStep in range(int(buffer_size/24)):
+        samples = rawDataStream[timeStep:timeStep+24]
+
+        for channel in range(12):
+            sample = samples[channel:channel+2]
+            data[channel, timeStep] = bytes_to_integer(sample)
+
     print(data)
-
-
-input_str = '0xff'
-c = BitArray(hex=input_str)
-c.bin
-
-    print(np.unpackbits(data))
 
 conn.send(StopCommandBytes)
 # This is required to make sure the socket
