@@ -13,6 +13,8 @@ import socket
 import struct
 import sys
 import numpy as np
+from bitstring import BitArray
+
 print("Starting")
 
 def bitstring_to_bytes(s):
@@ -50,11 +52,17 @@ print(TestCommand + " sent")
 
 for i in range(1000):
     print(i)
-    data = conn.recv(240) #Originally buffer size of 1024 for some reason
+    data = conn.recv(24) #Originally buffer size of 1024 for some reason
     #Should be integer multiple of bytes per sample
     print(type(data))
     print(len(data))
     print(data)
+
+
+input_str = '0xff'
+c = BitArray(hex=input_str)
+c.bin
+
     print(np.unpackbits(data))
 
 conn.send(StopCommandBytes)
